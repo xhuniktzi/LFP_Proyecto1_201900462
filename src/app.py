@@ -1,5 +1,6 @@
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
+from analizador import analizador
 from config import window, menu_bar
 from helpers import define_geometry
 from afd import automata
@@ -11,13 +12,15 @@ if __name__ == '__main__':
     string = open(filename, 'r+', encoding='utf-8').read()
     tokens, errors = automata(string)
 
-    for token in tokens:
-        print('Token: {}\t\tLexema: {}\t\tFila: {}\t\tColumna: {}'.format(
-            token.token, token.lexema, token.fila, token.col))
+    analizador(tokens)
 
-    for error in errors:
-        print('Lexema: {}\t\tFila: {}\t\tColumna: {}'.format(
-            error.char, error.linea, error.col))
+    # for token in tokens:
+    #     print('Token: {}\t\tLexema: {}\t\tFila: {}\t\tColumna: {}'.format(
+    #         token.token, token.lexema, token.fila, token.col))
+
+    # for error in errors:
+    #     print('Lexema: {}\t\tFila: {}\t\tColumna: {}'.format(
+    #         error.char, error.linea, error.col))
 
     # geometry = define_geometry(window, 900, 500)
     # window.config(menu=menu_bar)

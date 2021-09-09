@@ -1,7 +1,7 @@
 class Celda:
     def __init__(self) -> None:
-        pos_x: int = 0
-        pos_y: int = 0
-        is_draw: bool = False
-        color: str = ''
+        self.pos_x: int = 0
+        self.pos_y: int = 0
+        self.is_draw: bool = False
+        self.color: str = ''
     
