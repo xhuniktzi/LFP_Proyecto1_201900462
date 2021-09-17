@@ -1,12 +1,12 @@
 from typing import List
 from models.token import Token
-from models.img import Image
+from models.img import ImageEntry
 from models.celda import Celda
 
 
 def analizador(tokens: List[Token]):
     lista_images: list = []
-    lst_img_return: List[Image] = []
+    lst_img_return: List[ImageEntry] = []
 
     image: list = []  # Imagen 0, por defecto
     lista_images.append(image)
@@ -25,8 +25,8 @@ def analizador(tokens: List[Token]):
     return lst_img_return
 
 
-def analizar_imagen(tokens: List[Token]) -> Image:
-    image = Image()
+def analizar_imagen(tokens: List[Token]) -> ImageEntry:
+    image = ImageEntry()
 
     # Leer titulo
     for i in range(len(tokens)):

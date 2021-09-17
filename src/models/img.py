@@ -2,7 +2,7 @@ from typing import List
 
 from models.celda import Celda
 
-class Image:
+class ImageEntry:
     def __init__(self) -> None:
         self.titulo: str = ''
         self.ancho: int = 0

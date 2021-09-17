@@ -4,6 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+jinja2 = "*"
+pillow = "*"
 
 [dev-packages]
 pipenv = "*"
