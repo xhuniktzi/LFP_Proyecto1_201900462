@@ -140,3 +140,4 @@ cython_debug/
 # User def
 *.html
 !*.jinja2.html
+*.png
