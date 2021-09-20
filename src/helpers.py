@@ -1,33 +1,100 @@
 from models.error_entry import ErrorEntry
 from models.img import ImageEntry
 from models.token import Token
+from models.celda import Celda
 from jinja2 import Environment, select_autoescape
 from jinja2.loaders import FileSystemLoader
 from os import startfile
 from PIL import Image, ImageDraw
 from typing import List
+from datetime import datetime
 
 
-def create_image(img_element: ImageEntry):
+def parse_true_false_color(lst_pixels: List[Celda]):
+    for pix in lst_pixels:
+        if not pix.is_draw:
+            pix.color = '#FFFFFF'
+            pix.is_draw = True
+
+
+def create_image(img_element: ImageEntry, opt: str):
+    lst_pixels = img_element.celdas.copy()
+
     img = Image.new('RGB', (img_element.ancho, img_element.alto), 'white')
     draw = ImageDraw.Draw(img)
 
-    x_space: int = img_element.ancho // img_element.columnas
-    y_space: int = img_element.alto // img_element.filas
+    span_x: int = img_element.ancho // img_element.columnas
+    span_y: int = img_element.alto // img_element.filas
 
-    for celda in img_element.celdas:
-        x_start: int = celda.pos_x * x_space
-        y_start: int = celda.pos_y * y_space
+    parse_true_false_color(lst_pixels)
+    if opt == 'NORMAL':
+        for celda in lst_pixels:
+            x_start: int = celda.pos_x * span_x
+            y_start: int = celda.pos_y * span_y
 
-        x_end: int = x_start + x_space
-        y_end: int = y_start + y_space
+            x_end: int = x_start + span_x
+            y_end: int = y_start + span_y
 
-        draw.rectangle((x_start, y_start, x_end, y_end),
-                       fill=celda.color if celda.is_draw else '#FFFFFF',
-                       width=0)
+            draw.rectangle((x_start, y_start, x_end, y_end),
+                           fill=celda.color,
+                           width=0)
+    elif opt == 'MIRRORX':
+        rotate_x(lst_pixels, img_element.columnas)
+        for celda in lst_pixels:
+            x_start: int = celda.pos_x * span_x
+            y_start: int = celda.pos_y * span_y
 
-    img.save('prueba.png')
-    startfile('prueba.png')
+            x_end: int = x_start + span_x
+            y_end: int = y_start + span_y
+
+            draw.rectangle((x_start, y_start, x_end, y_end),
+                           fill=celda.color,
+                           width=0)
+    elif opt == 'MIRRORY':
+        rotate_y(lst_pixels, img_element.filas)
+        for celda in lst_pixels:
+            x_start: int = celda.pos_x * span_x
+            y_start: int = celda.pos_y * span_y
+
+            x_end: int = x_start + span_x
+            y_end: int = y_start + span_y
+
+            draw.rectangle((x_start, y_start, x_end, y_end),
+                           fill=celda.color,
+                           width=0)
+    elif opt == 'DOUBLEMIRROR':
+        rotate_xy(lst_pixels, img_element.columnas, img_element.filas)
+        for celda in lst_pixels:
+            x_start: int = celda.pos_x * span_x
+            y_start: int = celda.pos_y * span_y
+
+            x_end: int = x_start + span_x
+            y_end: int = y_start + span_y
+
+            draw.rectangle((x_start, y_start, x_end, y_end),
+                           fill=celda.color,
+                           width=0)
+
+    filename: str = datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
+
+    img.save('prueba-{}.png'.format(filename))
+    startfile('prueba-{}.png'.format(filename))
+
+
+def rotate_x(lst_pixels: List[Celda], cols: int):
+    for pix in lst_pixels:
+        pix.pos_x = cols - pix.pos_x
+
+
+def rotate_y(lst_pixels: List[Celda], rows: int):
+    for pix in lst_pixels:
+        pix.pos_y = rows - pix.pos_y
+
+
+def rotate_xy(lst_pixels: List[Celda], cols: int, rows: int):
+    for pix in lst_pixels:
+        pix.pos_x = cols - pix.pos_x
+        pix.pos_y = rows - pix.pos_y
 
 
 def process_file(tokens: List[Token], errs: List[ErrorEntry]):

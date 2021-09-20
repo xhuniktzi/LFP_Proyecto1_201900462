@@ -39,8 +39,21 @@ if __name__ == '__main__':
             for img in lst_images:
                 contador += 1
                 print('{}. {}'.format(contador, img.titulo))
-
             select_img = input('Ingresa un numero: ')
-            create_image(lst_images[int(select_img) - 1])
+            current_img = lst_images[int(select_img) - 1]
+
+            contador_2 = 0
+            print('0. NORMAL')
+            for opt in current_img.lista_filtros:
+                contador_2 += 1
+                print('{}. {}'.format(contador_2, opt))
+            select_opt = input('Ingrese una opción: ')
+
+            if select_opt != '0':
+                current_opt = current_img.lista_filtros[int(select_opt) - 1]
+            else:
+                current_opt = 'NORMAL'
+
+            create_image(current_img, current_opt)
         elif value == '4':
             break
