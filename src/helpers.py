@@ -1,3 +1,4 @@
+import tkinter
 from models.error_entry import ErrorEntry
 from models.img import ImageEntry
 from models.token import Token
@@ -20,11 +21,13 @@ def parse_true_false_color(lst_pixels: List[Celda]):
 def create_image(img_element: ImageEntry, opt: str):
     lst_pixels = img_element.celdas.copy()
 
-    img = Image.new('RGB', (img_element.ancho, img_element.alto), 'white')
-    draw = ImageDraw.Draw(img)
-
     span_x: int = img_element.ancho // img_element.columnas
     span_y: int = img_element.alto // img_element.filas
+
+    img = Image.new('RGB',
+                    (img_element.ancho + span_x, img_element.alto + span_y),
+                    'white')
+    draw = ImageDraw.Draw(img)
 
     parse_true_false_color(lst_pixels)
     if opt == 'NORMAL':
@@ -75,10 +78,10 @@ def create_image(img_element: ImageEntry, opt: str):
                            fill=celda.color,
                            width=0)
 
-    filename: str = datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
+    # filename: str = datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
 
-    img.save('prueba-{}.png'.format(filename))
-    startfile('prueba-{}.png'.format(filename))
+    img.save('prueba.png')
+    startfile('prueba.png')
 
 
 def rotate_x(lst_pixels: List[Celda], cols: int):
@@ -106,3 +109,10 @@ def process_file(tokens: List[Token], errs: List[ErrorEntry]):
     html_file.write(template.render(tokens=tokens, errs=errs))
     html_file.close()
     startfile('reports.html')
+
+
+def define_geometry(element, width: int, height: int):
+    x_win = element.winfo_screenwidth() // 2 - width // 2
+    y_win = element.winfo_screenheight() // 2 - height // 2
+    data_geometry = '{}x{}+{}+{}'.format(width, height, x_win, y_win)
+    return data_geometry
