@@ -1,65 +1,76 @@
+from tkinter import Button, Canvas, Frame, PhotoImage, Tk, Label
+from tkinter.ttk import Combobox
 from tkinter.filedialog import askopenfilename
-from helpers import define_geometry, process_file
-from tkinter import Button, Tk
-from tkinter.ttk import Combobox, Label
+from typing import List
 from afd import automata
 from analizador import analizador
+from helpers import create_image, process_file
 
-window = Tk()
-Label(window, text="Mostrar Imagenes").place(x=10, y=100)
-
-combo_img_transform = Combobox(window, state='readonly').place(x=210, y=150)
+from models.img import ImageEntry
 
 
-def report_images():
-    filename = askopenfilename()
-    filereader = open(filename, 'r+', encoding='utf-8')
-    current_file = filereader.read()
-    tokens, errs = automata(current_file)
-    process_file(tokens, errs)
+class MainApplication:
+    def __init__(self) -> None:
+        self.lista_images: List[ImageEntry] = []
+
+        self.root = Tk()
+        self.frame = Frame()
+
+        # self.root.geometry('600x600')
+        self.root.geometry('300x300')
+        self.frame.place(x=0, y=0)
+        self.frame.config(width=300, height=300)
+
+        self.btn_load_files = Button(self.frame,
+                                     text="Cargar Archivo",
+                                     command=self.load_file)
+        self.btn_load_files.place(x=10, y=10)
+
+        self.combo_images = Combobox(self.frame)
+        self.combo_images.place(x=10, y=45)
+
+        self.combo_transforms = Combobox(
+            self.frame,
+            values=['NORMAL', 'MIRRORX', 'MIRRORY', 'DOUBLEMIRROR'])
+        self.combo_transforms.place(x=10, y=80)
+
+        self.btn_process = Button(self.frame,
+                                  text="Procesar",
+                                  command=self.process_image)
+        self.btn_process.place(x=10, y=115)
+
+        # self.lbl_image = Canvas(self.frame, width=500, height=500)
+        # self.lbl_image.place(x=10, y=150)
+
+        self.root.mainloop()
+
+    def load_file(self):
+        filename = askopenfilename()
+        filereader = open(filename, 'r+', encoding='utf-8')
+        current_file = filereader.read()
+        tokens, errs = automata(current_file)
+        process_file(tokens, errs)
+        if not len(errs) > 0:
+            self.lista_images.clear()
+            images = analizador(tokens)
+            self.lista_images = images
+
+            name_images: List[str] = []
+            for img in images:
+                name_images.append(img.titulo)
+
+            self.combo_images['values'] = name_images
+
+    def process_image(self):
+        current_image = self.lista_images[self.combo_images.current()]
+        current_opt = self.combo_transforms.get()
+        if current_opt in ['NORMAL'
+                           ] or current_opt in current_image.lista_filtros:
+            create_image(current_image, current_opt)
+
+        # photo = PhotoImage(file='../prueba.png')
+        # self.lbl_image.create_image(0, 0, image=photo)
 
 
-def load_images():
-    filename = askopenfilename()
-    filereader = open(filename, 'r+', encoding='utf-8')
-    current_file = filereader.read()
-    tokens, errs = automata(current_file)
-    images = analizador(tokens)
-    combo_img = Combobox(window, state='readonly', values=images).place(x=210, y=100)
-
-    combo_img_transform = Combobox(window, state='readonly').place(x=210,
-                                                                   y=150)
-
-# def view_images():
-#     contador: int = 0
-#     for img in lst_images:
-#         contador += 1
-#         print('{}. {}'.format(contador, img.titulo))
-#     select_img = input('Ingresa un numero: ')
-#     current_img = lst_images[int(select_img) - 1]
-
-#     contador_2 = 0
-#     print('0. NORMAL')
-#     for opt in current_img.lista_filtros:
-#         contador_2 += 1
-#         print('{}. {}'.format(contador_2, opt))
-#     select_opt = input('Ingrese una opción: ')
-
-#     if select_opt != '0':
-#         current_opt = current_img.lista_filtros[int(select_opt) - 1]
-#     else:
-#         current_opt = 'NORMAL'
-
-#     create_image(current_img, current_opt)
-
-
-
-window.geometry(define_geometry(window, 500, 500))
-Label(window, text="Analizar Archivo y ver reportes").place(x=10, y=10)
-btn_load = Button(window, text="Abrir", command=report_images).place(x=210,
-                                                                     y=10)
-Label(window, text="Cargar Imagenes").place(x=10, y=60)
-btn_load_img = Button(window, text="Abrir", command=load_images).place(x=210,
-                                                                       y=60)
-btn_view_img = Button(window, text="Mostrar").place(x=210, y=200)
-window.mainloop()
+if __name__ == '__main__':
+    MainApplication()
